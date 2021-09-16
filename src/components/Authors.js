@@ -32,7 +32,7 @@ const Authors = (props) => {
   if (!props.show) {
     return null;
   }
-
+  console.log(authors);
   if (authors.loading) {
     return <div>loading...</div>;
   }

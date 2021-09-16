@@ -6,6 +6,8 @@ export const ALL_BOOKS = gql`
     allBooks {
       title
       published
+      genres
+      id
       author
     }
   }
@@ -17,6 +19,7 @@ const Books = (props) => {
   if (!props.show) {
     return null;
   }
+  console.log(books);
 
   if (books.loading) {
     return <div>loading...</div>;

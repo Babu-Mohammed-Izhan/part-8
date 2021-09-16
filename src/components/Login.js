@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { gql, useQuery, useMutation } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 
 export const LOGIN = gql`
   mutation login($username: String!, $password: String!) {
@@ -9,17 +9,16 @@ export const LOGIN = gql`
   }
 `;
 
-const Login = () => {
+const Login = ({ setError, setToken, show }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [token, setToken] = useState(null);
-  const [error, setError] = useState("");
 
   const [login, result] = useMutation(LOGIN, {
     onError: (error) => {
       setError(error.graphQLErrors[0].message);
     },
   });
+
   useEffect(() => {
     if (result.data) {
       const token = result.data.login.value;
@@ -27,6 +26,10 @@ const Login = () => {
       localStorage.setItem("library-user-token", token);
     }
   }, [result.data]);
+
+  if (!show) {
+    return null;
+  }
 
   const submit = (e) => {
     e.preventDefault();
