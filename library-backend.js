@@ -1,9 +1,15 @@
-const { ApolloServer, gql } = require("apollo-server");
+const {
+  ApolloServer,
+  gql,
+  UserInputError,
+  AuthenticationError,
+} = require("apollo-server");
 const jwt = require("jsonwebtoken");
 const { v1: uuid } = require("uuid");
 const mongoose = require("mongoose");
 const Author = require("./models/author");
 const Book = require("./models/books");
+const User = require("./models/user");
 
 const MONGODB_URI =
   "mongodb+srv://izhan:izhan@cluster0.airbl.mongodb.net/graphql?retryWrites=true&w=majority";
@@ -150,7 +156,7 @@ const typeDefs = gql`
       genres: [String!]
     ): Book
     editAuthor(name: String!, setBornTo: Int!): Author
-    createUser(username: String!, favoriteGenre: String!): User
+    createUser(username: String!, favoriteGenre: String): User
     login(username: String!, password: String!): Token
   }
 `;
@@ -175,8 +181,12 @@ const resolvers = {
     },
   },
   Mutation: {
-    addBook: async (root, args) => {
+    addBook: async (root, args, { currentUser }) => {
       const book = new Book({ ...args });
+
+      if (!currentUser) {
+        throw new AuthenticationError("not authenticated");
+      }
 
       try {
         await book.save();
@@ -198,8 +208,13 @@ const resolvers = {
       // return book;
     },
 
-    editAuthor: async (root, args) => {
+    editAuthor: async (root, args, { currentUser }) => {
       const author = await Author.findOne({ name: args.name });
+
+      if (!currentUser) {
+        throw new AuthenticationError("not authenticated");
+      }
+
       author.phone = args.phone;
       try {
         await author.save();
@@ -218,8 +233,9 @@ const resolvers = {
       // authors = authors.map((p) => (p.name === args.name ? updatedAuthor : p));
       // return updatedAuthor;
     },
-    createUser: (root, args) => {
-      const user = new User({ username: args.username });
+    createUser: (root, args, context) => {
+      const user = new User({ ...args });
+      const currentUser = context.currentUser;
 
       return user.save().catch((error) => {
         throw new UserInputError(error, message, {
