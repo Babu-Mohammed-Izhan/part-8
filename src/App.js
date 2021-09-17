@@ -12,12 +12,15 @@ const App = () => {
   const client = useApolloClient();
 
   const logout = () => {
+    setToken("");
     localStorage.clear();
     client.resetStore();
   };
+
   useEffect(() => {
     console.log(error);
   }, [error]);
+
   return (
     <div>
       <div>
@@ -34,7 +37,7 @@ const App = () => {
         )}
       </div>
 
-      <Authors show={page === "authors"} />
+      <Authors show={page === "authors"} token={token} />
 
       <Books show={page === "books"} />
 
