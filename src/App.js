@@ -3,7 +3,21 @@ import Authors from "./components/Authors";
 import Books from "./components/Books";
 import NewBook from "./components/NewBook";
 import Login from "./components/Login";
-import { useApolloClient } from "@apollo/client";
+import { useApolloClient, useSubscription, gql } from "@apollo/client";
+import Reccomendations from "./components/Reccomendations";
+import { ALL_BOOKS } from "./components/Books";
+
+export const BOOK_ADDED = gql`
+  subscription {
+    bookAdded {
+      title
+      published
+      genres
+      id
+      author
+    }
+  }
+`;
 
 const App = () => {
   const [page, setPage] = useState("authors");
@@ -21,6 +35,29 @@ const App = () => {
     console.log(error);
   }, [error]);
 
+  const updateCacheWith = (addedBook) => {
+    const includedIn = (set, object) => {
+      set.map((b) => b.id).includes(object.id);
+    };
+
+    const dataInStore = client.readQuery({ query: ALL_BOOKS });
+    if (!includedIn(dataInStore.allBooks, addedBook)) {
+      client.writeQuery({
+        query: ALL_BOOKS,
+        data: { allBooks: dataInStore.allBooks.concat(addedBook) },
+      });
+    }
+  };
+
+  useSubscription(BOOK_ADDED, {
+    onSubscriptionData: ({ subscriptionData }) => {
+      console.log(subscriptionData);
+      window.alert("New book has been added");
+      const addedPerson = subscriptionData.data.personAdded;
+      updateCacheWith(addedPerson);
+    },
+  });
+
   return (
     <div>
       <div>
@@ -32,6 +69,7 @@ const App = () => {
         {token === "" ? null : (
           <>
             <button onClick={() => setPage("add")}>add book</button>
+            <button onClick={() => setPage("reccomend")}>recommend</button>
             <button onClick={() => logout()}>logout</button>
           </>
         )}
@@ -44,6 +82,8 @@ const App = () => {
       <NewBook show={page === "add"} />
 
       <Login show={page === "login"} setToken={setToken} setError={setError} />
+
+      <Reccomendations show={page === "reccomend"} />
     </div>
   );
 };

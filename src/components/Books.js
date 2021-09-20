@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useLazyQuery } from "@apollo/client";
 
 export const ALL_BOOKS = gql`
-  query {
-    allBooks {
+  query findfilteredbooks($genre: String){
+    allBooks(genre=$genre}) {
       title
       published
       genres
@@ -14,23 +14,17 @@ export const ALL_BOOKS = gql`
 `;
 
 const Books = (props) => {
-  const books = useQuery(ALL_BOOKS);
-  const [filter, setFilter] = useState("allgenres");
+  const [getBooks, result] = useLazyQuery(ALL_BOOKS);
+  const [filter, setFilter] = useState(null);
   const [filteredbook, setfilteredbook] = useState([]);
 
   useEffect(() => {
-    setfilteredbook(books);
-  }, []);
+    setfilteredbook(result);
+  }, [result]);
 
-  const filterbooks = (filter) => {
-    if (filter === "allgenres") {
-      setfilteredbook(books.data.allBooks);
-    } else {
-      setfilteredbook(
-        books.data.allBooks.filter((b) => b.genres.includes(filter))
-      );
-    }
-  };
+  useEffect(() => {
+    getBooks({ variables: { query: filter } });
+  }, [filter]);
 
   if (!props.show) {
     return null;
@@ -38,7 +32,7 @@ const Books = (props) => {
 
   console.log(filteredbook);
 
-  if (filterbooks.length === 0) {
+  if (filteredbook.length === 0) {
     return <div>loading...</div>;
   }
 
@@ -63,13 +57,13 @@ const Books = (props) => {
             ))}
         </tbody>
       </table>
-      <button onClick={() => filterbooks("refactoring")}>refactoring</button>
-      <button onClick={() => filterbooks("agile")}>agile</button>
-      <button onClick={() => filterbooks("patterns")}>patterns</button>
-      <button onClick={() => filterbooks("design")}>design</button>
-      <button onClick={() => filterbooks("crime")}>crime</button>
-      <button onClick={() => filterbooks("classic")}>classic</button>
-      <button onClick={() => filterbooks("allgenres")}>all genres</button>
+      <button onClick={() => setFilter("refactoring")}>refactoring</button>
+      <button onClick={() => setFilter("agile")}>agile</button>
+      <button onClick={() => setFilter("patterns")}>patterns</button>
+      <button onClick={() => setFilter("design")}>design</button>
+      <button onClick={() => setFilter("crime")}>crime</button>
+      <button onClick={() => setFilter("classic")}>classic</button>
+      <button onClick={() => setFilter(null)}>all genres</button>
     </div>
   );
 };
