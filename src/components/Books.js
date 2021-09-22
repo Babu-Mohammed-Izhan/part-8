@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { gql, useLazyQuery } from "@apollo/client";
 
 export const ALL_BOOKS = gql`
-  query findfilteredbooks($genre: String){
-    allBooks(genre=$genre}) {
+  query findfilteredbooks($genre: String) {
+    allBooks(genre: $genre) {
       title
       published
       genres
@@ -14,28 +14,28 @@ export const ALL_BOOKS = gql`
 `;
 
 const Books = (props) => {
-  const [getBooks, result] = useLazyQuery(ALL_BOOKS);
-  const [filter, setFilter] = useState(null);
-  const [filteredbook, setfilteredbook] = useState([]);
+  const [getBooks, { loading, error, data }] = useLazyQuery(ALL_BOOKS);
+  const [filter, setFilter] = useState("");
+  const [filteredbook, setfilteredbook] = useState(null);
 
   useEffect(() => {
-    setfilteredbook(result);
-  }, [result]);
+    setfilteredbook(data);
+  }, [data]);
 
   useEffect(() => {
-    getBooks({ variables: { query: filter } });
+    console.log(filter);
+    getBooks({ variables: { genre: filter } });
   }, [filter]);
 
   if (!props.show) {
     return null;
   }
 
-  console.log(filteredbook);
-
-  if (filteredbook.length === 0) {
+  if (loading) {
     return <div>loading...</div>;
   }
-
+  console.log("books", filteredbook);
+  console.log(error);
   return (
     <div>
       <h2>books</h2>
@@ -47,14 +47,14 @@ const Books = (props) => {
             <th>author</th>
             <th>published</th>
           </tr>
-          {filteredbook.length > 0 &&
-            filteredbook.map((a) => (
+          {/* {filteredbook.allBooks &&
+            filteredbook.allBooks.map((a) => (
               <tr key={a.title}>
                 <td>{a.title}</td>
                 <td>{a.author}</td>
                 <td>{a.published}</td>
               </tr>
-            ))}
+            ))} */}
         </tbody>
       </table>
       <button onClick={() => setFilter("refactoring")}>refactoring</button>

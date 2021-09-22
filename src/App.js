@@ -83,7 +83,7 @@ const App = () => {
 
       <Login show={page === "login"} setToken={setToken} setError={setError} />
 
-      <Reccomendations show={page === "reccomend"} />
+      <Reccomendations show={page === "reccomend"} genre={"crime"} />
     </div>
   );
 };

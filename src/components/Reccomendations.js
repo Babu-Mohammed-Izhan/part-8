@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useLazyQuery } from "@apollo/client";
 import { ALL_BOOKS } from "./Books";
 
 const Reccomendations = (props) => {
   const [books, setbooks] = useState([]);
-  const [getReccomendBooks, result] = useQuery(ALL_BOOKS);
+  const [getReccomendBooks, result] = useLazyQuery(ALL_BOOKS);
 
   useEffect(() => {
     getReccomendBooks({ variables: { query: props.genre } });
   }, [props.genre]);
 
   useEffect(() => {
-    console.log(result);
     setbooks(result.data);
   }, [result]);
 
