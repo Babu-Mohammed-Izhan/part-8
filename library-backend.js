@@ -76,7 +76,7 @@ const typeDefs = gql`
     login(username: String!, password: String!): Token
   }
 
-  type Subsciption {
+  type Subscription {
     bookAdded: Book!
   }
 `;
@@ -86,13 +86,12 @@ const resolvers = {
     bookCount: () => Book.collection.countDocuments(),
     authorCount: () => Author.collection.countDocuments(),
     allBooks: (root, args) => {
+      console.log(args);
       if (args.author) {
-        return Book.findOne({ author: args.author }).exec();
-        // return books.filter((b) => b.author === args.author);
+        return Book.find({ author: args.author }).exec();
       }
       if (args.genre) {
-        return Book.findOne({ genre: args.genre }).exec();
-        // return books.filter((b) => b.genres.includes(args.genre));
+        return Book.find({ genres: args.genre }).exec();
       }
       return Book.find({}).exec();
     },
@@ -165,7 +164,7 @@ const resolvers = {
     },
   },
   Subscription: {
-    personAdded: {
+    bookAdded: {
       subscribe: () => pubsub.asyncIterator(["BOOK_ADDED"]),
     },
   },
