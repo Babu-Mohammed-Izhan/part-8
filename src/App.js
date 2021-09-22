@@ -53,8 +53,8 @@ const App = () => {
     onSubscriptionData: ({ subscriptionData }) => {
       console.log(subscriptionData);
       window.alert("New book has been added");
-      const addedPerson = subscriptionData.data.personAdded;
-      updateCacheWith(addedPerson);
+      const addedBook = subscriptionData.data.bookAdded;
+      updateCacheWith(addedBook);
     },
   });
 

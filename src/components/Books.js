@@ -19,7 +19,10 @@ const Books = (props) => {
   const [filteredbook, setfilteredbook] = useState(null);
 
   useEffect(() => {
-    setfilteredbook(data);
+    if (data !== undefined) {
+      setfilteredbook(data.allBooks);
+    }
+    console.log(data);
   }, [data]);
 
   useEffect(() => {
@@ -47,14 +50,14 @@ const Books = (props) => {
             <th>author</th>
             <th>published</th>
           </tr>
-          {/* {filteredbook.allBooks &&
-            filteredbook.allBooks.map((a) => (
+          {filteredbook.length &&
+            filteredbook.map((a) => (
               <tr key={a.title}>
                 <td>{a.title}</td>
                 <td>{a.author}</td>
                 <td>{a.published}</td>
               </tr>
-            ))} */}
+            ))}
         </tbody>
       </table>
       <button onClick={() => setFilter("refactoring")}>refactoring</button>
